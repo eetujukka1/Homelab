@@ -73,7 +73,7 @@ resource "proxmox_virtual_environment_vm" "ubuntu_vm" {
 
 resource "local_file" "ansible_inventory" {
   content = <<-EOT
-[swarm_managers]
+[k3s_servers]
 %{ for k, vm in {
   for k, vm in proxmox_virtual_environment_vm.ubuntu_vm : k => {
     ansible_host = cidrhost(var.cidr, var.first_host + tonumber(k))
@@ -86,7 +86,7 @@ ${vm.vm_name} ansible_host=${vm.ansible_host} ansible_user=${vm.ansible_user}
 %{ endif ~}
 %{ endfor ~}
 
-[swarm_workers]
+[k3s_agents]
 %{ for k, vm in {
   for k, vm in proxmox_virtual_environment_vm.ubuntu_vm : k => {
     ansible_host = cidrhost(var.cidr, var.first_host + tonumber(k))
