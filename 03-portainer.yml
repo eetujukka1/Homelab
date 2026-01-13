@@ -1,0 +1,39 @@
+---
+- name: Install Portainer with persistent Longhorn storage
+  hosts: k3s_servers[0]
+  become: true
+  vars:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+    portainer_version: 1.0.63
+
+    portainer_storage_class: longhorn
+    portainer_storage_size: 5Gi
+
+    longhorn_replica_count: 3
+    longhorn_data_locality: disabled
+    longhorn_anti_affinity: true
+
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"
+
+  tasks:
+    - name: Ensure Helm repo exists
+      shell: |
+        helm repo add portainer https://portainer.github.io/k8s/ || true
+        helm repo update
+
+    - name: Ensure namespace exists
+      shell: kubectl create ns portainer || true
+
+    - name: Deploy Portainer with enforced persistence
+      shell: |
+        helm upgrade --install portainer portainer/portainer \
+          --namespace portainer \
+          --version {{ portainer_version }} \
+          --set service.type=NodePort \
+          --set persistence.enabled=true \
+          --set persistence.storageClass={{ portainer_storage_class }} \
+          --set persistence.size={{ portainer_storage_size }} \
+          --set persistence.annotations."longhorn\.io/numberOfReplicas"="{{ longhorn_replica_count }}" \
+          --set persistence.annotations."longhorn\.io/dataLocality"="{{ longhorn_data_locality }}" \
+          --set persistence.annotations."longhorn\.io/replicaSoftAntiAffinity"="{{ longhorn_anti_affinity }}"

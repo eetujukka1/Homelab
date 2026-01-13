@@ -1,0 +1,12 @@
+# Terraform state file
+*.tfstate
+*.tfstate.*
+
+# Terraform variables
+*.tfvars
+
+# Terraform providers
+/.Terraform
+.terraform
+
+inventory.ini
