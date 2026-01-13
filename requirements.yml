@@ -1,0 +1,12 @@
+---
+collections:
+  - name: community.general
+    version: ">=6.0.0"
+  - name: gluster.gluster
+    version: "1.0.1"
+
+roles:
+  - name: gluster.volume
+    src: https://github.com/gluster/gluster-ansible-cluster.git
+    scm: git
+    version: master
