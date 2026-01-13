@@ -99,6 +99,10 @@ ${vm.vm_name} ansible_host=${vm.ansible_host} ansible_user=${vm.ansible_user}
 %{ endif ~}
 %{ endfor ~}
 
+[k3s_cluster:children]
+k3s_servers
+k3s_agents
+
 [all:vars]
 ansible_ssh_private_key_file=${var.ssh_key_files.private}
 ansible_ssh_common_args='-o StrictHostKeyChecking=no'
