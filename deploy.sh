@@ -14,3 +14,9 @@ ansible-playbook 02-longhorn.yml
 
 # Deploy Portainer
 ansible-playbook 03-portainer.yml
+
+# Deploy Traefik
+ansible-playbook 04-traefik.yml
+
+# Deploy Tailscale subnet router
+ansible-playbook 05-tailscale.yml

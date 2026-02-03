@@ -4,8 +4,8 @@
   become: true
   vars:
     kubeconfig: /etc/rancher/k3s/k3s.yaml
-    portainer_hostname: portainer.homelab.internal
-    longhorn_hostname: longhorn.homelab.internal
+    portainer_hostname: portainer.lab.internal
+    longhorn_hostname: longhorn.lab.internal
   environment:
     KUBECONFIG: "{{ kubeconfig }}"
   tasks:
