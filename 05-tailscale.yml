@@ -1,0 +1,39 @@
+---
+- name: Deploy Tailscale Kubernetes Operator as subnet router
+  hosts: k3s_servers[0]
+  become: true
+  vars_files:
+    - tailscale-secrets.yml
+  vars:
+    kubeconfig: /etc/rancher/k3s/k3s.yaml
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"
+  tasks:
+    - name: Add Tailscale Helm repo
+      shell: helm repo add tailscale https://pkgs.tailscale.com/helmcharts && helm repo update
+      changed_when: true
+
+    - name: Create tailscale namespace
+      shell: kubectl create namespace tailscale --dry-run=client -o yaml | kubectl apply -f -
+
+    - name: Install Tailscale operator via Helm
+      shell: |
+        helm upgrade --install tailscale-operator tailscale/tailscale-operator \
+          --namespace tailscale \
+          --set oauth.clientId="{{ tailscale_client_id }}" \
+          --set oauth.clientSecret="{{ tailscale_client_secret }}" \
+          --wait
+
+    - name: Apply Tailscale Connector for subnet routing
+      shell: |
+        kubectl apply -f - <<'EOF'
+        apiVersion: tailscale.com/v1alpha1
+        kind: Connector
+        metadata:
+          name: homelab-subnet-router
+          namespace: tailscale
+        spec:
+          subnetRouter:
+            advertiseRoutes:
+              - 192.168.8.0/24
+        EOF
